@@ -1,0 +1,107 @@
+package com.company;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // get input
+        Scanner input = new Scanner(System.in);
+        String card_num_as_string = "";
+        System.out.print("Enter a credit card number: ");
+        card_num_as_string = input.nextLine();
+        if(luhn_algorithm(card_num_as_string)){
+            System.out.println(category(card_num_as_string));
+        } else {
+            System.out.println("INVALID");
+        }
+    }
+
+        static boolean luhn_algorithm(String card_num_as_string){
+        // get arraylist of every other number starting from the second to last
+        char card_num_as_char;
+        int card_num_as_int;
+        ArrayList<Integer> every_other_card_num = new ArrayList<Integer>();
+        for (int i = card_num_as_string.length() - 2; i >= 0; i = i - 2) {
+            card_num_as_char = card_num_as_string.charAt(i);
+            card_num_as_int = Character.getNumericValue(card_num_as_char);
+            every_other_card_num.add(card_num_as_int);
+        }
+
+        // multiply each number in arraylist by 2 of every other number starting from the second to last
+        ArrayList<Integer> double_card_num = new ArrayList<Integer>();
+        for (int i = 0; i < every_other_card_num.size(); i++) {
+            double_card_num.add(every_other_card_num.get(i) * 2);
+        }
+
+        // sum the digits of each doubled number
+            Integer num_0 = 0;
+            int double_num_sum = 0;
+            for (int i = 0; i < double_card_num.size() ; i++) {
+                while (double_card_num.get(i) > num_0){
+                    Integer double_digit_num = double_card_num.get(i);
+                    double_num_sum = double_num_sum + (double_digit_num % 10);
+                    double_card_num.set(i,double_digit_num/10);
+                }
+            }
+
+        // find the sum of the remaining numbers
+        int rem_sum = 0;
+        for (int i = card_num_as_string.length() - 1; i >= 0; i = i - 2) {
+            card_num_as_char = card_num_as_string.charAt(i);
+            card_num_as_int = Character.getNumericValue(card_num_as_char);
+            rem_sum = rem_sum + card_num_as_int;
+        }
+
+        // check if (sum of remaining numbers + sum of the digits of each doubled number) ends in 0
+        int final_sum;
+        final_sum = double_num_sum + rem_sum;
+        if (final_sum % 10 == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+        // check which category of card it is
+        static String category (String card_num_as_string) {
+            char card_num_as_char;
+            int card_num_as_int;
+
+            ArrayList<Integer> all_card_num = new ArrayList<Integer>();
+            for (int i = 0; i < card_num_as_string.length(); i++) {
+                card_num_as_char = card_num_as_string.charAt(i);
+                card_num_as_int = Character.getNumericValue(card_num_as_char);
+                all_card_num.add(card_num_as_int);
+            }
+
+            // Amex = 15 digits, MasterCard  = 16 digits, Visa = 13 or 16 digits
+            // Amex start with 34 or 37 & MasterCard start with 51,52,53,54,55 & Visa start with 4)
+            Integer num_1 = 1;
+            Integer num_2 = 2;
+            Integer num_3 = 3;
+            Integer num_4 = 4;
+            Integer num_5 = 5;
+            Integer num_7 = 7;
+
+            if ((all_card_num.size() == 15) && (all_card_num.get(0) == num_3)) {
+                if ((all_card_num.get(1) == num_4) || (all_card_num.get(1) == num_7)) {
+                    return "AMEX";
+                } else {
+                    return "INVALID";
+                }
+            } else if ((all_card_num.size() == 16) && (all_card_num.get(0) == num_5)) {
+                if ((all_card_num.get(1) == num_1) || (all_card_num.get(1) == num_2) || (all_card_num.get(1) == num_3)
+                        || (all_card_num.get(1) == num_4) || (all_card_num.get(1) == num_5)) {
+                    return "MASTERCARD";
+                } else {
+                    return "INVALID";
+                }
+            } else if ((all_card_num.get(0) == num_4) && ((all_card_num.size() == 13) || (all_card_num.size() == 16))) {
+                return "VISA";
+            } else {
+                return "INVALID";
+            }
+        }
+    }
